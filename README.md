@@ -26,16 +26,15 @@ This repository rebuilds/provides the missing compatibility pieces.
 
 ---
 
-# What still does NOT work
+# MULTIPLAYER WILL NOT WORK !!!!
 
 Because the game depends on OpenSSL 1.0.2:
 
-- Multiplayer: ❌
-- Leaderboards: ❌
-
 SEGA servers require modern TLS support that OpenSSL 1.0.2 does not have.
 
-Single-player works correctly.
+Single-player works. If you want multiplayer just use Proton
+
+This is not the best way to play the game , i did this out of curiosity.
 
 ---
 
@@ -44,22 +43,11 @@ Single-player works correctly.
 Before using either method:
 
 - Steam must be installed as the native `.deb` version (NOT Flatpak)
-- Check with:
-
-```bash
-which steam
-```
-
-Expected output:
-
-```bash
-/usr/games/steam
-```
 
 Also:
 
-- SHOGUN 2 must be installed
-- In Steam → right click game → Properties → Betas
+- SHOGUN 2 must be installed with linux-pre-2022-update
+- In Steam → right click game → Properties → Game Versions & Betas
 - Select:
 
 ```text
@@ -68,7 +56,7 @@ linux-pre-2022-update
 
 And:
 
-- Compatibility tab → make sure Proton / Steam Play is DISABLED
+- Compatibility tab → make sure Proton / Steam Play is off!
 
 ---
 
@@ -178,26 +166,6 @@ You can also run specific phases manually.
 
 After the script finishes:
 
-### In Steam → SHOGUN 2 → Properties
-
-#### Betas
-
-Select:
-
-```text
-linux-pre-2022-update
-```
-
-#### Compatibility
-
-Make sure:
-
-```text
-Force Steam Play compatibility tool
-```
-
-is UNCHECKED.
-
 #### Launch Options
 
 Paste the line printed by the script.
@@ -215,17 +183,7 @@ Paste the line printed by the script.
 
 # Method 2 — Full Manual Guide
 
-Use this if:
-
-- you want to understand every step
-- you don't trust automation
-- you want to debug or customize the process
-
-Everything below is the full manual build process.
-
----
-
-# Step-by-step manual guide
+Use this if you dont trust me :(
 
 Tested on Linux Mint 22.1/22.3 and Ubuntu 22.04/24.04.
 
