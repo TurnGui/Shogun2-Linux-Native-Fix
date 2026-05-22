@@ -1,197 +1,52 @@
-# Total War: SHOGUN 2 Native Linux Fix Guide
+# Total War: SHOGUN 2 — Native Linux Fix Guide
 
-This repository contains two ways to get the native Linux version of Total War: SHOGUN 2 working again on modern Ubuntu-based distributions:
+ ## Warning !!!
+> Multiplayer will **not** work with this method. This is only for single-player.  
+> Also, this isn’t the best way to play SHOGUN 2 on Linux—using Proton is far simpler and more reliable.  
+> This was made almost as a "science project" and out of spite!!! (Yeah, SEGA really did us dirty with that native port.)
 
-1. **Automatic script method (recommended)** — one command, mostly automated.
-2. **Manual method** — step-by-step build instructions for people who want full control.
-
-Tested on:
-- Linux Mint 22.1 / 22.3
-- Ubuntu 22.04 / 24.04
-- Should work on most Ubuntu-based distributions
+This guide helps you resurrect the native Linux version of Total War: SHOGUN 2 on modern Ubuntu-based systems (tested on Mint 22.1/22.3, Ubuntu 22.04/24.04). If you value your free time, just enable Proton and walk away happy.
 
 ---
 
-# What this fixes
+## Requirements
 
-Modern Linux systems break the old native SHOGUN 2 build for several reasons:
-
-- W^X kernel enforcement (`mprotect` issue)
-- Missing old OpenSSL libraries
-- Missing old libcurl symbols
-- Removed GConf libraries
-- glibc 2.34+ `dlopen` compatibility issues
-
-This repository rebuilds/provides the missing compatibility pieces.
+- Steam installed from the `.deb` (the Flatpak just adds problems)
+- SHOGUN 2 set to the `linux-pre-2022-update` branch  
+  (Steam → right-click the game → Properties → Game Versions & Betas → pick that branch)
+- Proton/Steam Play must be **off** for this game
 
 ---
 
-# MULTIPLAYER WILL NOT WORK !!!!
+## Script Method (Recommended)
 
-Because the game depends on OpenSSL 1.0.2:
+Fastest way is to let the script do everything for you.
 
-SEGA servers require modern TLS support that OpenSSL 1.0.2 does not have.
+1. Download or clone this repository.
+2. Open a terminal in the repo folder and run:
+    ```sh
+    chmod +x shogun2-native-fix-v2.sh
+    ./shogun2-native-fix-v2.sh
+    ```
+3. The script handles package installs, building libraries, copying everything, and even prints exactly what to put as your Steam launch option.
 
-Single-player works. If you want multiplayer just use Proton
-
-This is not the best way to play the game , i did this out of curiosity.
-
----
-
-# Requirements
-
-Before using either method:
-
-- Steam must be installed as the native `.deb` version (NOT Flatpak)
-
-Also:
-
-- SHOGUN 2 must be installed with linux-pre-2022-update
-- In Steam → right click game → Properties → Game Versions & Betas
-- Select:
-
-```text
-linux-pre-2022-update
-```
-
-And:
-
-- Compatibility tab → make sure Proton / Steam Play is off!
+- If you want to see what happens before anything changes:  
+  `./shogun2-native-fix-v2.sh --dry-run`
+- Check what’s installed so far:  
+  `./shogun2-native-fix-v2.sh --status`
+- For troubleshooting:  
+  `./shogun2-native-fix-v2.sh --diagnose`
 
 ---
 
-# Method 1 — Automatic Script (Recommended)
+## Manual Method
 
-The easiest method.
+If the script fails or you just dont trust me :( and want to do it yourself
 
-The script:
+### Install packages and dependencies
 
-- installs required packages
-- builds all compatibility libraries
-- copies required game files
-- prints the correct Steam launch options
-
----
-
-## Step 1 — Download or clone the repository
-
-```bash
-git clone <YOUR_REPO_URL>
-cd <YOUR_REPO_NAME>
-```
-
-Or simply download the files manually.
-
----
-
-## Step 2 — Make the script executable
-
-```bash
-chmod +x shogun2-native-fix-v2.sh
-```
-
----
-
-## Step 3 — Run the script
-
-```bash
-./shogun2-native-fix-v2.sh
-```
-
-The script will:
-
-1. Build `libc_mprotect.so`
-2. Build OpenSSL 1.0.2
-3. Build libcurl 7.40
-4. Build a libgconf compatibility stub
-5. Install required 32-bit packages
-6. Copy `private_symbol_hack.so`
-7. Print the exact Steam launch option to paste
-
----
-
-## Script phases
-
-You can also run specific phases manually.
-
-### Phase 1 — W^X fix
-
-```bash
-./shogun2-native-fix-v2.sh --phase 1
-```
-
-### Phase 2 — OpenSSL + libcurl + GConf
-
-```bash
-./shogun2-native-fix-v2.sh --phase 2
-```
-
-### Phase 3 — Dependencies + private_symbol_hack
-
-```bash
-./shogun2-native-fix-v2.sh --phase 3
-```
-
-### Phase 4 — Print launch options
-
-```bash
-./shogun2-native-fix-v2.sh --phase 4
-```
-
----
-
-## Useful script commands
-
-### Show installation status
-
-```bash
-./shogun2-native-fix-v2.sh --status
-```
-
-### Diagnose launch failures
-
-```bash
-./shogun2-native-fix-v2.sh --diagnose
-```
-
-### Preview actions without changing anything
-
-```bash
-./shogun2-native-fix-v2.sh --dry-run
-```
-
----
-
-## Final Steam setup
-
-After the script finishes:
-
-#### Launch Options
-
-Paste the line printed by the script.
-
----
-
-## Launch the game
-
-- Make sure Steam is running
-- Click Play
-- The Feral launcher should appear
-- Click PLAY
-
----
-
-# Method 2 — Full Manual Guide
-
-Use this if you dont trust me :(
-
-Tested on Linux Mint 22.1/22.3 and Ubuntu 22.04/24.04.
-
----
-
-## Step 1 — install build tools and 32-bit libraries
-
-```bash
+```sh
+sudo apt update
 sudo apt install gcc gcc-multilib make wget perl pkg-config build-essential \
   libgl1-mesa-dri:i386 libgl1:i386 libc6:i386 \
   libopenal1:i386 libnss3:i386 libnspr4:i386 \
@@ -199,57 +54,36 @@ sudo apt install gcc gcc-multilib make wget perl pkg-config build-essential \
   libxss1:i386 libxtst6:i386
 ```
 
-### Ubuntu 22.04
-
-```bash
+If you’re on Ubuntu 22.04:
+```sh
 sudo apt install libgtk2.0-0:i386
 ```
-
-### Ubuntu 24.04 / Mint 22
-
-```bash
+On Ubuntu 24.04 or Mint 22, because someone needed to rename it:
+```sh
 sudo apt install libgtk2.0-0t64:i386
 ```
 
-### NVIDIA users
-
-Find your driver version:
-
-```bash
+NVIDIA users **NEED** to do this !!!
+```sh
 nvidia-smi --query-gpu=driver_version --format=csv,noheader
+sudo apt install libnvidia-gl-XXX:i386
 ```
-
-Example:
-
-```text
-595.71.05
-```
-
-Install the matching 32-bit GL package:
-
-```bash
-sudo apt install libnvidia-gl-595:i386
-```
+(Replace `XXX` with your driver version.)
 
 ---
 
-## Step 2 — create working directories
+### Make directories
 
-```bash
+```sh
 mkdir -p ~/.local/share/shogun2-native-fix/lib32
 mkdir -p ~/.local/share/shogun2-native-fix/src
 ```
 
 ---
 
-## Step 3 — build libc_mprotect.so
+### Compile kernel compatibility shim
 
-Modern kernels block writable+executable memory.
-SHOGUN 2 still expects it.
-
-Create the source:
-
-```bash
+```sh
 cat > ~/.local/share/shogun2-native-fix/src/libc_mprotect.c << 'EOF'
 #define _GNU_SOURCE
 #include <sys/mman.h>
@@ -260,83 +94,34 @@ int mprotect(void *addr, size_t len, int prot) {
     return syscall(__NR_mprotect, addr, len, prot);
 }
 EOF
-```
 
-Compile:
-
-```bash
 gcc -m32 -shared -fPIC -O2 \
     -o ~/.local/share/shogun2-native-fix/lib32/libc_mprotect.so \
     ~/.local/share/shogun2-native-fix/src/libc_mprotect.c
 ```
 
-Verify:
-
-```bash
-file ~/.local/share/shogun2-native-fix/lib32/libc_mprotect.so
-```
-
-Expected:
-
-```text
-ELF 32-bit LSB shared object, Intel 80386
-```
-
 ---
 
-## Step 4 — build OpenSSL 1.0.2u
+### Build OpenSSL 1.0.2u
 
-The game needs old sonames:
-
-- `libssl.so.37`
-- `libcrypto.so.36`
-
-These no longer exist on modern Ubuntu.
-
-Download:
-
-```bash
+```sh
 cd ~/.local/share/shogun2-native-fix/src
-
-wget -O openssl-1.0.2u.tar.gz \
-    https://ftp.nluug.nl/security/openssl/openssl-1.0.2u.tar.gz
-```
-
-Extract:
-
-```bash
+wget -O openssl-1.0.2u.tar.gz https://ftp.nluug.nl/security/openssl/openssl-1.0.2u.tar.gz
 tar -xzf openssl-1.0.2u.tar.gz
 cd openssl-1.0.2u
-```
 
-Configure:
-
-```bash
 ./Configure linux-elf shared no-asm \
     --prefix="$HOME/.local/share/shogun2-native-fix/openssl-install" \
     --openssldir="$HOME/.local/share/shogun2-native-fix/openssl-install/ssl" \
     -Wl,-rpath="$HOME/.local/share/shogun2-native-fix/lib32" \
     -Wl,-z,noexecstack
-```
 
-Build:
-
-```bash
 make depend
-
 make -j$(nproc) \
     CFLAG="-Wno-error -fPIC -m32 -DOPENSSL_PIC -DOPENSSL_THREADS -D_REENTRANT -DDSO_DLFCN -DHAVE_DLFCN_H -DL_ENDIAN -O3 -Wall"
-```
 
-Copy libraries:
-
-```bash
 cp -P libssl.so* libcrypto.so* ~/.local/share/shogun2-native-fix/lib32/
-```
 
-Create old soname symlinks:
-
-```bash
 cd ~/.local/share/shogun2-native-fix/lib32
 ln -sf libssl.so.1.0.0 libssl.so.37
 ln -sf libcrypto.so.1.0.0 libcrypto.so.36
@@ -344,20 +129,14 @@ ln -sf libcrypto.so.1.0.0 libcrypto.so.36
 
 ---
 
-## Step 5 — build libcurl 7.40
+### Build libcurl 7.40
 
-```bash
+```sh
 cd ~/.local/share/shogun2-native-fix/src
-
 wget -O curl-7.40.0.tar.gz https://curl.se/download/curl-7.40.0.tar.gz
-
 tar -xzf curl-7.40.0.tar.gz
 cd curl-7.40.0
-```
 
-Configure:
-
-```bash
 OPENSSL_SRC="$HOME/.local/share/shogun2-native-fix/src/openssl-1.0.2u"
 LIB32="$HOME/.local/share/shogun2-native-fix/lib32"
 
@@ -370,25 +149,16 @@ LIBS="-ldl" \
     --disable-static \
     --enable-shared \
     --host=i686-pc-linux-gnu
-```
 
-Build:
-
-```bash
 make -j$(nproc)
-```
-
-Copy libraries:
-
-```bash
 cp -P lib/.libs/libcurl.so* ~/.local/share/shogun2-native-fix/lib32/
 ```
 
 ---
 
-## Step 6 — build libgconf stub
+### Build libgconf stub
 
-```bash
+```sh
 cat > ~/.local/share/shogun2-native-fix/src/gconf_stub.c << 'EOF'
 #include <stdlib.h>
 void gconf_client_get_default(void) {}
@@ -414,11 +184,7 @@ void gconf_value_get_int(void) {}
 void gconf_init(void) {}
 void gconf_error_quark(void) {}
 EOF
-```
 
-Compile:
-
-```bash
 gcc -m32 -shared -fPIC -O2 \
     -o ~/.local/share/shogun2-native-fix/lib32/libgconf-2.so.4 \
     ~/.local/share/shogun2-native-fix/src/gconf_stub.c
@@ -426,99 +192,53 @@ gcc -m32 -shared -fPIC -O2 \
 
 ---
 
-## Step 7 — copy private_symbol_hack.so
+### Copy private_symbol_hack.so
 
-```bash
+```sh
 cp ~/.steam/debian-installation/steamapps/common/"Total War SHOGUN 2"/lib/private_symbol_hack.so \
    ~/.local/share/shogun2-native-fix/lib32/
 ```
-
-Verify:
-
-```bash
-file ~/.local/share/shogun2-native-fix/lib32/private_symbol_hack.so
-```
-
-Expected:
-
-```text
-ELF 32-bit LSB shared object, Intel 80386
-```
+(Make sure the Steam path is correct for your setup.)
 
 ---
 
-## Step 8 — verify installed files
+### Check the result
 
-```bash
+Quick directory check:
+```sh
 ls -la ~/.local/share/shogun2-native-fix/lib32/
 ```
-
-Expected files:
-
-```text
-libc_mprotect.so
-libcrypto.so -> libcrypto.so.1.0.0
-libcrypto.so.1.0.0
-libcrypto.so.36 -> libcrypto.so.1.0.0
-libssl.so -> libssl.so.1.0.0
-libssl.so.1.0.0
-libssl.so.37 -> libssl.so.1.0.0
-libcurl.so -> libcurl.so.4.3.0
-libcurl.so.4 -> libcurl.so.4.3.0
-libcurl.so.4.3.0
-libgconf-2.so.4
-private_symbol_hack.so
-```
+You should see all those `.so` files—if anything is missing, something went wrong
 
 ---
 
-## Step 9 — Steam launch options
+### Steam Launch Option
 
-In Steam:
+In Steam (right-click game → Properties → Launch Options):
 
-- Right click SHOGUN 2
-- Properties
-- General
-- Launch Options
-
-Paste:
-
-```text
+```
 SteamAppId=34330 GameAppId=34330 GAME_LAUNCH_PREFIX="env LD_LIBRARY_PATH=/home/YOUR_USERNAME/.local/share/shogun2-native-fix/lib32:../lib/i686" LD_PRELOAD="/home/YOUR_USERNAME/.local/share/shogun2-native-fix/lib32/private_symbol_hack.so:/home/YOUR_USERNAME/.local/share/shogun2-native-fix/lib32/libc_mprotect.so:/home/YOUR_USERNAME/.local/share/shogun2-native-fix/lib32/libcurl.so.4.3.0:/home/YOUR_USERNAME/.local/share/shogun2-native-fix/lib32/libssl.so.1.0.0:/home/YOUR_USERNAME/.local/share/shogun2-native-fix/lib32/libcrypto.so.1.0.0" %command%
 ```
-
-Or auto-generate the correct line:
-
-```bash
-LIB32="$HOME/.local/share/shogun2-native-fix/lib32"
-
-echo "SteamAppId=34330 GameAppId=34330 GAME_LAUNCH_PREFIX=\"env LD_LIBRARY_PATH=${LIB32}:../lib/i686\" LD_PRELOAD=\"${LIB32}/private_symbol_hack.so:${LIB32}/libc_mprotect.so:${LIB32}/libcurl.so.4.3.0:${LIB32}/libssl.so.1.0.0:${LIB32}/libcrypto.so.1.0.0\" %command%"
-```
+Replace `/home/YOUR_USERNAME` with your actual username
 
 ---
 
-## Step 10 — launch
+### Running the game
 
-- Start Steam
-- Launch the game
-- The Feral launcher should appear
-- Click PLAY
-
-If the game crashes:
-
-```bash
-tail -50 ~/.steam/debian-installation/logs/console_log.txt
-```
+Start SHOGUN 2 from the Steam library.  
+If it crashes, check `~/.steam/debian-installation/logs/console_log.txt` for hints.  
+If it still won't launch: maybe just try Proton , i really dont know...
 
 ---
 
-# Uninstall
+### Uninstall
 
-```bash
+To remove everything:
+```sh
 rm -rf ~/.local/share/shogun2-native-fix/
 ```
+And clear your Steam Launch Option. No system files will be harmed, just whatever you installed via apt.
 
-Then remove the Steam launch option.
+---
 
-No system files are modified beyond installed apt packages.
-
+If SEGA (ever) updates their port to use modern libraries and dependencies, you can ignore all the above. Until then… good luck!
