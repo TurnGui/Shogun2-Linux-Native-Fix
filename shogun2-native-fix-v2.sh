@@ -39,6 +39,7 @@ readonly OPENSSL_URL_FALLBACK="https://mirrors.dotsrc.org/openssl/source/old/1.0
 readonly OPENSSL_SHA256="ecd0c6ffb493dd06707d38b14bb4d8c2288bb7033735606569d8f90f89669d16"
 readonly LIBCURL_VERSION="7.40.0"
 readonly LIBCURL_URL="https://curl.se/download/curl-${LIBCURL_VERSION}.tar.gz"
+readonly LIBCURL_SHA256="c2e0705a13e53f8f924d1eaeb2ab94f59a9e162007c489b9ab0c96238bddf84b"
 readonly STEAM_APPID="34330"
 
 if [[ -t 1 ]]; then
@@ -217,7 +218,25 @@ phase2() {
     local curl_src="$SRC_DIR/curl-${LIBCURL_VERSION}"
     local curl_tarball="$SRC_DIR/curl-${LIBCURL_VERSION}.tar.gz"
     if [[ $DRY_RUN -eq 0 ]]; then
-        [[ ! -f "$curl_tarball" ]] && { info "Downloading libcurl..."; wget -q --show-progress -O "$curl_tarball" "$LIBCURL_URL"; }
+        # Verify or download libcurl
+        _verify_curl() {
+            gzip -t "$curl_tarball" 2>/dev/null || { rm -f "$curl_tarball"; return 1; }
+            local s; s=$(sha256sum "$curl_tarball" | awk '{print $1}')
+            [[ "$s" == "$LIBCURL_SHA256" ]] || { rm -f "$curl_tarball"; return 1; }
+        }
+        if [[ -f "$curl_tarball" ]] && ! _verify_curl; then : ; fi
+        if [[ ! -f "$curl_tarball" ]]; then
+            info "Downloading libcurl ${LIBCURL_VERSION}..."
+            wget -q --show-progress -O "$curl_tarball" "$LIBCURL_URL" && _verify_curl || {
+                err "libcurl download or checksum mismatch. Get manually:"
+                err "  wget -O '$curl_tarball' '$LIBCURL_URL'"
+                err "  Expected SHA256: $LIBCURL_SHA256"
+                exit 1
+            }
+            ok "libcurl downloaded and verified."
+        else
+            ok "libcurl already present and verified."
+        fi
         [[ ! -d "$curl_src" ]] && { info "Extracting libcurl..."; tar -xzf "$curl_tarball" -C "$SRC_DIR"; }
         info "Building libcurl..."
         pushd "$curl_src" > /dev/null
